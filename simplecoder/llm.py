@@ -41,6 +41,7 @@ class LLMResponse:
                     "type": "function",
                     "function": {
                         "name": tc.name,
+                        #将tc.arguments的内容转换为json格式
                         "arguments": json.dumps(tc.arguments),
                     },
                 }
@@ -95,6 +96,7 @@ class LLM:
         self.total_prompt_tokens = 0
         self.total_completion_tokens = 0
 
+    #统计token和费用
     @property
     def estimated_cost(self) -> float | None:
         """Rough cost estimate in USD. Returns None if model not in pricing table."""
@@ -190,12 +192,14 @@ class LLM:
             completion_tokens=completion_tok,
         )
 
+    #带重试机制的底层请求发送器
     def _call_with_retry(self, params: dict, max_retries: int = 3):
         """Retry on transient errors with exponential backoff."""
         for attempt in range(max_retries):
             try:
                 return self.client.chat.completions.create(**params)
             except (RateLimitError, APITimeoutError, APIConnectionError):
+                #当达到最大重试数时直接抛出异常
                 if attempt == max_retries - 1:
                     raise
                 wait = 2 ** attempt

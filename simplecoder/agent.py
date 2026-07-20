@@ -78,7 +78,7 @@ class Agent:
                         on_tool(tc.name, tc.arguments)
                     result = self._exec_tool(tc)
                     self.messages.append({
-                        "role": "tools",
+                        "role": "tool",
                         "tool_call_id": tc.id,
                         "content": result,
                     })
@@ -87,7 +87,7 @@ class Agent:
                     results = self._exec_tools_parallel(resp.tool_calls, on_tool)
                     for tc, result in zip(resp.tool_calls, results):
                         self.messages.append({
-                            "role": "tools",
+                            "role": "tool",
                             "tool_call_id": tc.id,
                             "content": result,
                         })
@@ -108,6 +108,7 @@ class Agent:
             return f"Error: unknown tools '{tc.name}'"
 
         try:
+            #先进行判断参数是否符合工具的要求
             inspect.signature(tool.execute).bind(**tc.arguments)
         except TypeError as e:
             return f"Error: bad arguments for {tc.name}: {e}"
@@ -133,7 +134,7 @@ class Agent:
         for tc in tool_calls:
             if tc.id not in answered:
                 self.messages.append({
-                    "role": "tools",
+                    "role": "tool",
                     "tool_call_id": tc.id,
                     "content": "[interrupted]",
                 })

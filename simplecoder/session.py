@@ -13,22 +13,23 @@ SESSIONS_DIR = Path.home() / ".simplecoder" / "sessions"
 _SAFE_SESSION_RE = re.compile(r"[^A-Za-z0-9._-]+")
 _MAX_SESSION_ID_LEN = 100  # keep filenames comfortably under the OS limit
 
-
+#规范化会话ID
 def _normalize_session_id(session_id: str | None) -> str:
     if not session_id:
         return _new_session_id()
 
+    #会话名进行处理，去除前后的空格、将\\代替为/、最后以/进行分割只取最后一段
     name = session_id.strip().replace("\\", "/").split("/")[-1]
     name = _SAFE_SESSION_RE.sub("-", name).strip(".-_")
     if len(name) > _MAX_SESSION_ID_LEN:
         name = name[:_MAX_SESSION_ID_LEN].strip(".-_")
     return name or _new_session_id()
 
-
+#生成一个新的会话ID
 def _new_session_id() -> str:
     return f"session_{time.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
 
-
+#通过会话ID拿到会话的文件地址
 def _session_path(session_id: str) -> Path:
     path = (SESSIONS_DIR / f"{_normalize_session_id(session_id)}.json").resolve()
     root = SESSIONS_DIR.resolve()
@@ -36,7 +37,7 @@ def _session_path(session_id: str) -> Path:
         raise ValueError("Invalid session id")
     return path
 
-
+#保存会话
 def save_session(messages: list[dict], model: str, session_id: str | None = None) -> str:
     """Save conversation to disk. Returns the session ID."""
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
@@ -54,7 +55,7 @@ def save_session(messages: list[dict], model: str, session_id: str | None = None
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return session_id
 
-
+#取会话
 def load_session(session_id: str) -> tuple[list[dict], str] | None:
     """Load a saved session. Returns (messages, model) or None."""
     path = _session_path(session_id)
@@ -68,7 +69,7 @@ def load_session(session_id: str) -> tuple[list[dict], str] | None:
         # a corrupt or truncated session file shouldn't crash resume
         return None
 
-
+#列出所有会话
 def list_sessions() -> list[dict]:
     """List available sessions, newest first."""
     if not SESSIONS_DIR.exists():

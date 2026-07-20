@@ -21,6 +21,7 @@ console = Console()
 
 
 def _parse_args():
+    #注册一个参数解析器
     p = argparse.ArgumentParser(
         prog="simplecoder",
         description="Annotated minimal AI coding agent. Works with any OpenAI-compatible LLM.",
