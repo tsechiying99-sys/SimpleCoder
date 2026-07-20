@@ -75,7 +75,7 @@ class ContextManager:
         """
         changed = False
         for m in messages:
-            if m.get("role") != "tools":
+            if m.get("role") != "tool":
                 continue
             content = m.get("content", "")
             if len(content) <= 1500:
@@ -102,7 +102,7 @@ class ContextManager:
         message has no preceding tool_calls and OpenAI-compatible APIs reject it.
         """
         split = max(0, len(messages) - keep_recent)
-        while split > 0 and messages[split].get("role") == "tools":
+        while split > 0 and messages[split].get("role") == "tool":
             split -= 1
         return split
 

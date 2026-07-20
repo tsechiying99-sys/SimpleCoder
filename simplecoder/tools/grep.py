@@ -35,6 +35,7 @@ class GrepTool(Tool):
 
     def execute(self, pattern: str, path: str = ".", include: str | None = None) -> str:
         try:
+            #把字符串形式的正则表达式编译成正则对象
             regex = re.compile(pattern)
         except re.error as e:
             return f"Invalid regex: {e}"
@@ -67,6 +68,7 @@ class GrepTool(Tool):
     def _walk(root: Path, include: str | None) -> list[Path]:
         """Walk dir tree, skipping junk dirs."""
         results = []
+        #递归查找 root 目录下所有文件和目录，包括子目录里的
         for item in root.rglob(include or "*"):
             # skip junk dirs *inside* the search root - matching item.parts would
             # also catch an ancestor named e.g. "build" and hide the whole tree

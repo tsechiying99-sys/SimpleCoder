@@ -28,7 +28,6 @@ def _load_dotenv():
     except ImportError:
         pass
 
-
 @dataclass
 class Config:
     model: str = "gpt-5.5"
